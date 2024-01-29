@@ -312,6 +312,32 @@ app.get("/api/v1/recipes/search", async (req, res) => {
     });
   }
 });
+// 저장창고에 재료 넣기
+app.post("/api/v1/storage", async (req, res) => {
+  const { ingredient_id } = req.body;
+
+  try {
+    const result = await pool.query(
+      "INSERT INTO Storage (ingredient_id) VALUES ($1)",
+      [ingredient_id]
+    );
+
+    res.json({
+      resultCode: "S-1",
+      msg: "성공",
+      data: {
+        ingredient_id,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      resultCode: "F-1",
+      msg: "에러 발생",
+      error: error.toString(),
+    });
+  }
+});
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
