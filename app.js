@@ -339,6 +339,93 @@ app.post("/api/v1/storage", async (req, res) => {
   }
 });
 
+// 저장창고 재료 조회
+app.get("/api/v1/storage", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM Storage");
+    const storageItems = result.rows;
+    res.json({
+      resultCode: "S-1",
+      msg: "Success",
+      data: storageItems,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      resultCode: "F-1",
+      msg: "Error occurred",
+      error: error.toString(),
+    });
+  }
+});
+
+// 저장창고 재료 추가
+app.post("/api/v1/storage", async (req, res) => {
+  const { name } = req.body;
+
+  try {
+    const result = await pool.query(
+      "INSERT INTO Storage (name) VALUES ($1) RETURNING *",
+      [name]
+    );
+    const newIngredient = result.rows[0];
+    res.json({
+      resultCode: "S-1",
+      msg: "Success",
+      data: newIngredient,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      resultCode: "F-1",
+      msg: "Error occurred",
+      error: error.toString(),
+    });
+  }
+});
+
+// 저장창고 재료 삭제
+app.delete("/api/v1/storage/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await pool.query("DELETE FROM Storage WHERE ingredient_id = $1", [id]);
+    res.json({
+      resultCode: "S-1",
+      msg: `Ingredient with ID ${id} deleted successfully`,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      resultCode: "F-1",
+      msg: "Error occurred",
+      error: error.toString(),
+    });
+  }
+});
+
+// 저장창고 기반 레시피 검색
+app.get("/api/v1/recipes/search", async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT DISTINCT R.* FROM Recipes R INNER JOIN Recipe_Ingredients RI ON R.recipe_id = RI.recipe_id WHERE RI.ingredient_id IN (SELECT ingredient_id FROM Storage)"
+    );
+    const recipes = result.rows;
+    res.json({
+      resultCode: "S-1",
+      msg: "Success",
+      data: recipes,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      resultCode: "F-1",
+      msg: "Error occurred",
+      error: error.toString(),
+    });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
