@@ -180,6 +180,12 @@ app.delete("/api/v1/recipes/:id", async (req, res) => {
   }
 
   try {
+    // Recipe_Ingredients 테이블에서 해당 레시피에 대한 모든 레코드 삭제
+    await pool.query("DELETE FROM Recipe_Ingredients WHERE recipe_id = $1", [
+      id,
+    ]);
+
+    // Recipes 테이블에서 해당 레시피 삭제
     await pool.query("DELETE FROM Recipes WHERE recipe_id = $1", [id]);
 
     res.json({
@@ -320,14 +326,14 @@ app.get("/api/v1/storage", async (req, res) => {
     const storageItems = result.rows;
     res.json({
       resultCode: "S-1",
-      msg: "Success",
+      msg: "성공",
       data: storageItems,
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({
       resultCode: "F-1",
-      msg: "Error occurred",
+      msg: "에러 발생",
       error: error.toString(),
     });
   }
@@ -336,7 +342,6 @@ app.get("/api/v1/storage", async (req, res) => {
 // 저장창고 재료 추가
 app.post("/api/v1/storage", async (req, res) => {
   const { name } = req.body;
-
   try {
     const result = await pool.query(
       "INSERT INTO Storage (name) VALUES ($1) RETURNING *",
@@ -345,14 +350,14 @@ app.post("/api/v1/storage", async (req, res) => {
     const newIngredient = result.rows[0];
     res.json({
       resultCode: "S-1",
-      msg: "Success",
+      msg: "성공",
       data: newIngredient,
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({
       resultCode: "F-1",
-      msg: "Error occurred",
+      msg: "에러 발생",
       error: error.toString(),
     });
   }
@@ -361,7 +366,6 @@ app.post("/api/v1/storage", async (req, res) => {
 // 저장창고 재료 삭제
 app.delete("/api/v1/storage/:id", async (req, res) => {
   const { id } = req.params;
-
   try {
     await pool.query("DELETE FROM Storage WHERE ingredient_id = $1", [id]);
     res.json({
@@ -382,19 +386,20 @@ app.delete("/api/v1/storage/:id", async (req, res) => {
 app.get("/api/v1/recipes/search", async (req, res) => {
   try {
     const result = await pool.query(
-      "SELECT DISTINCT R.* FROM Recipes R INNER JOIN Recipe_Ingredients RI ON R.recipe_id = RI.recipe_id WHERE RI.ingredient_id IN (SELECT ingredient_id FROM Storage)"
+      "SELECT DISTINCT R.* FROM Recipes R INNER JOIN Recipe_Ingredients RI ON R.recipe_id = RI.recipe_id WHERE RI.ingredient_id IN (SELECT ingredient_id FROM Ingredients WHERE name IN (SELECT name FROM Storage))"
     );
-    const recipes = result.rows;
+    const listrows = result.rows;
+
     res.json({
       resultCode: "S-1",
-      msg: "Success",
-      data: recipes,
+      msg: "성공",
+      data: listrows,
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({
       resultCode: "F-1",
-      msg: "Error occurred",
+      msg: "에러 발생",
       error: error.toString(),
     });
   }
