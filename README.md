@@ -28,7 +28,7 @@
 ![Dev2](https://github.com/MWTeamB/Recipe_Backend/assets/141000247/d48ecfe0-4b4d-4103-9215-b947169f5c7e)
 
 ## 클라이언트 요청에 따른 Flow chart
-![Flow chart](flowchart_image_path)
+[![Flow chart](flowchart_image_path)](https://www.canva.com/design/DAF7FQu4HfI/co1NnDwocPNogb1MfbM8VQ/view?utm_content=DAF7FQu4HfI&utm_campaign=designshare&utm_medium=link&utm_source=editor)
 
 ## 이슈 해결 사례
 - **이슈:** '내 저장창고' 테이블이 '레시피' 테이블과 '재료' 테이블의 외래키를 참조하도록 설계되었으나, 이로 인해 '내 저장창고'와 '레시피' 기능에서 오류가 발생했습니다.
